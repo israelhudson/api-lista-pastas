@@ -24,16 +24,23 @@ if ($pasta === false || strpos($pasta, realpath($baseDir)) !== 0 || !is_dir($pas
     exit;
 }
 
-// Listar diretórios
+// Listar pastas e arquivos
 $result_json = [];
 $diretorio = opendir($pasta);
 
 while (($arquivo = readdir($diretorio)) !== false) {
-    if ($arquivo != '.' && $arquivo != '..' && is_dir($pasta . DIRECTORY_SEPARATOR . $arquivo)) {
+    if ($arquivo != '.' && $arquivo != '..') {
+        $caminhoCompleto = $pasta . DIRECTORY_SEPARATOR . $arquivo;
+        $tipo = is_dir($caminhoCompleto) ? 'folder' : 'file';
+        $dataModificacao = date('Y-m-d H:i:s', filemtime($caminhoCompleto));
+        $tamanho = $tipo === 'file' ? filesize($caminhoCompleto) : null;
+
         $result_json[] = [
             'name' => $arquivo,
-            'path' => $pasta . DIRECTORY_SEPARATOR . $arquivo,
-            'type' => 'folder'
+            'path' => $caminhoCompleto,
+            'type' => $tipo,
+            'last_modified' => $dataModificacao,
+            'size' => $tamanho
         ];
     }
 }
